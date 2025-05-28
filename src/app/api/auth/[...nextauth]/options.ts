@@ -17,6 +17,7 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials: Record<"identifier" | "password", string> | undefined): Promise<User|null> {
+                console.log("Authorize called with:", credentials);
                 await dbConnect()
                 try {
                     if (!credentials) {
@@ -28,10 +29,11 @@ export const authOptions: NextAuthOptions = {
                             { username: credentials.identifier }
                         ]
                     })
+                    console.log("Found user:", user);
                     if (!user) {
                         throw new Error("No user found with this email/username")
                     }
-                    if (!user.isVerified) {
+                    if (!user.isVerified) {                        
                         throw new Error("Please verify your account before login")
                     }
                     const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password)
